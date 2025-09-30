@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile Fetcher</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to the User Profile Fetcher</h1>
+  <p>Enter a user ID to fetch the profile:</p>
+  
+  <form id="userForm">
+    <label>
+      Username
+      <input type="text" id="usernameInput" placeholder="Enter username">
+    </label>
+    <label>
+      Password
+      <input type="password" id="password" placeholder="Enter password">
+    </label>
+    <button type="submit">Fetch Profile</button>
+  </form>
+
+  <div id="userInfo"></div>
+  <div id="errorMessage" style="color: red; display: none;"></div>
+
+  <!-- External server logic -->
+  <script src="server.js"></script>
+
+  <script>
+    function retryNTimes(fn, n, callback, ...args) {
+      let attempts = 0;
+
+      function attempt() {
+        fn(...args, (error, data) => {
+          if (!error || attempts >= n) {
+            callback(error, data);
+          } else {
+            attempts++;
+            attempt();
+          }
+        });
+      }
+
+      attempt();
+    }
+
+    // Handle form submission
+    document.getElementById('userForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      
+      // Reset messages
+      const userInfoDiv = document.getElementById('userInfo');
+      userInfoDiv.textContent = '';
+      const errorMessageDiv = document.getElementById('errorMessage');
+      errorMessageDiv.style.display = 'none';
+
+      // Get form input
+      const usernameInput = document.getElementById('usernameInput').value;
+      const username = usernameInput.trim();
+      const passwordInput = document.getElementById('password').value;
+      const password = passwordInput.trim();
+
+      // Call the authenticate function from server.js
+      function fetchCallback(errorMessage, user) {
+        if (errorMessage instanceof String) {
+          let messageDiv = document.getElementById('errorMessage');
+          messageDiv.textContent = errorMessage;
+          messageDiv.style.display = 'block';
+        } else {
+          let infobox = document.getElementById('userInfo');
+          infobox.textContent = `Welcome ${user.name}, aged ${user.age}!`;
+        }
+      }
+
+      function authenticationCallback (errorMessage, userId) {
+        if (errorMessage !== null) {
+          let messageDiv = document.getElementById('errorMessage');
+          messageDiv.textContent = errorMessage;
+          messageDiv.style.display = 'block';
+        } else {
+          let infobox = document.getElementById('userInfo');
+          infobox.textContent = "Login successful, fetching your profile!";
+          fetchUserProfile(userId, fetchCallback);
+        }
+      }
+
+      authenticate(username, password, authenticationCallback);
+    });
+  </script>
+</body>
+</html>
