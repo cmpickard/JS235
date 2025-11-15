@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Store</title>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      async function loadContent(url) {
+        let response = await fetch(url);
+        store.innerHTML = await response.text();
+      }
+
+      async function postContent(url, options) {
+        try {
+          let response = await fetch(url, options);
+          if (response.ok) {
+            console.log('item edited successfully')
+          } else {
+            console.log(response);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+      // initial load of store homepage
+      let store = document.getElementById('store');
+      const BASE_URL = 'https://ls-230-web-store-demo.herokuapp.com';
+      loadContent(BASE_URL + '/products');
+
+      // load a product page
+      store.addEventListener('click', (event) => {
+        let target = event.target;
+        if (target.tagName !== 'A') return;
+        event.preventDefault();
+
+        loadContent(BASE_URL + target.getAttribute('href'));
+      });
+
+      // submit edits to a product
+      store.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        let form = document.querySelector('form');
+        let data = new FormData(form);
+        let options = {
+          body: data,
+          method: form.method,
+          headers: {
+            'Authorization': 'token AUTH_TOKEN',
+          },
+        }
+        let url = BASE_URL + event.target.getAttribute('action');
+
+        postContent(url, options);
+
+        // redirect back to store page
+        loadContent(BASE_URL + '/products');
+      })
+    });
+  </script>
+</head>
+<body>
+  <h1>Existing Page</h1>
+
+  <div id="store"></div>
+</body>
+</html>

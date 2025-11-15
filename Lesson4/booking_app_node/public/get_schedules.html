@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang = 'eng'>
+<head>
+  <meta charset="utf-8">
+  <title>Retrieve all schedules</title>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const TIMEOUT = 1000;
+
+      function timeout() {
+        return new Promise((resolve, reject) => {
+          setTimeout(resolve, TIMEOUT, 'Request timed out. Please try again.');
+        });
+      }
+
+      async function getSchedules() {
+        try {
+          let responsePromise = fetch('/api/schedules');
+          let timeoutPromise = timeout();
+          let result = await Promise.race([responsePromise, timeoutPromise]);
+          if (result.ok) {
+            let data = await result.json();
+            handleSchedules(data);
+          } else {
+            let outcome = result.statusText || result;
+            throw new Error(outcome);
+          }
+        } catch (error) {
+          console.log(error.message);
+        }
+      }
+
+      function handleSchedules(data) {
+        let total = countSchedules(data);
+        displaySchedules(total);
+      }
+
+      function countSchedules(schedules) {
+        if (schedules.length === 0) return null;
+
+        return schedules.reduce((total, schedule) => {
+          if (schedule.student_email !== null) return total;
+
+          let id = schedule.staff_id;
+          if (total[id] === undefined) {
+            total[id] = 1;
+          } else {
+            total[id] += 1;
+          }
+
+          return total;
+        }, {});
+      }
+
+      function displaySchedules(total) {
+        let ul = document.getElementById('schedule-list');
+
+        if (total === null) {
+          ul.textContent('There are no schedules available at this time.')
+        } else {
+
+          for (let id in total) {
+            let li = document.createElement('li');
+            li.textContent = `staff ${id}: ${total[id]}`;
+            ul.appendChild(li);
+          }
+        }
+      }
+
+      getSchedules();
+    });
+  </script>
+</head>
+<body>
+  <main>
+    <div id="error"></div>
+    <ul id="schedule-list"></ul>
+  </main>
+</body>
+</html>

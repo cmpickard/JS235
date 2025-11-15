@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const templates = {
   photo({ id, src, caption }) {
     return (

@@ -1,40 +1,13 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable max-len */
 /* eslint-disable max-lines-per-function */
-
-import debounce from './debounce.js';
-
-class Autocomplete {
-  constructor(url, input) {
-    this.input = input;
-    this.url = url;
-
-    this.listUI = null;
-    this.overlay = null;
-
-    this.visible = false;
-    this.matches = [];
-    this.bestMatchIndex = null;
-    this.selectedIndex = null;
-    this.previousValue = null;
-
-    this.wrapInput();
-    this.createUI();
-
-    this.valueChanged = debounce(this.valueChanged.bind(this), 300);
-
-    this.bindEvents();
-    this.reset();
-  }
-
-  wrapInput() {
+const Autocomplete = {
+  wrapInput: function() {
     let wrapper = document.createElement('div');
     wrapper.classList.add('autocomplete-wrapper');
     this.input.parentNode.appendChild(wrapper);
     wrapper.appendChild(this.input);
-  }
+  },
 
-  createUI() {
+  createUI: function() {
     let listUI = document.createElement('ul');
     listUI.classList.add('autocomplete-ui');
     this.input.parentNode.appendChild(listUI);
@@ -46,128 +19,125 @@ class Autocomplete {
 
     this.input.parentNode.appendChild(overlay);
     this.overlay = overlay;
-  }
+  },
 
-  bindEvents() {
-    this.input.addEventListener('input', this.valueChanged);
-    this.input.addEventListener('keydown', this.handleKeydown.bind(this));
-    this.listUI.addEventListener('mousedown', this.handleMousedown.bind(this));
-  }
+  bindEvents: function() {
+    this.input.addEventListener('input', this.valueChanged.bind(this));
+    this.input.addEventListener('keydown', this.upDown.bind(this));
+  },
 
-  async valueChanged() {
+  valueChanged: async function() {
     let value = this.input.value;
-    this.previousValue = value;
+    this.selectedIndex = null;
 
     if (value.length > 0) {
-      this.matches = await this.fetchMatches(value);
+      this.input.value = this.autoCapitalize(value);
+      await this.fetchMatches(value);
       this.visible = true;
       this.bestMatchIndex = 0;
-      this.selectedIndex = null;
       this.draw();
     } else {
       this.reset();
     }
-  }
+  },
 
-  draw() {
-    while (this.listUI.lastChild) {
-      this.listUI.removeChild(this.listUI.lastChild);
+  upDown: function(event) {
+    let key = event.key;
+    if (key === 'ArrowUp') {
+      if (this.selectedIndex < 0) {
+        this.selectedIndex = this.matches.length - 1;
+      } else {
+        this.selectedIndex -= 1;
+      }
+    } else if (key === 'ArrowDown') {
+      if (this.selectedIndex >= this.matches.length) {
+        this.selectedIndex = 0;
+      } else {
+        this.selectedIndex += 1;
+      }
     }
 
-    if (!this.visible) {
-      this.overlay.textContent = '';
-      return;
+    this.draw();
+  },
+
+  fetchMatches: async function(query) {
+    try {
+      let response = await fetch(`${this.url}${encodeURIComponent(query)}`);
+      if (response.ok) {
+        let data = await response.json();
+        this.matches = [];
+        for (let country of data) {
+          this.matches.push(country.name);
+        }
+      } else {
+        console.log(response.statusText);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  draw: function() {
+    // reset List Elements from last draw
+    let listElements = [...document.querySelectorAll('li')];
+    listElements.forEach(li => li.remove());
+
+    // determine which index is currently selected
+    let selected;
+    if (this.selectedIndex === null) {
+      selected = this.bestMatchIndex;
+    } else {
+      selected = this.matchesselectedIndex;
     }
 
-    if (this.bestMatchIndex !== null && this.matches.length !== 0) {
-      let selected = this.matches[this.bestMatchIndex];
-      this.overlay.textContent = this.generateOverlayContent(this.input.value, selected);
+    // update list for current value of this.matches
+    this.matches.forEach((country, idx) => {
+      let li = document.createElement('li');
+      li.textContent = country;
+      this.listUI.appendChild(li);
+      if (idx === selected) li.classList.add('selected');
+    });
+
+    // determine value of the autocomplete overlay
+    if (this.matches[selected] !== undefined) {
+      this.overlay.textContent = this.matches[selected];
     } else {
       this.overlay.textContent = '';
     }
+  },
 
-    this.matches.forEach((match, index) => {
-      let li = document.createElement('li');
-      li.classList.add('autocomplete-ui-choice');
-
-      if (index === this.selectedIndex) {
-        li.classList.add('selected');
-        this.input.value = match.name;
-      }
-
-      li.textContent = match.name;
-      this.listUI.appendChild(li);
-    });
-  }
-
-  generateOverlayContent(value, match) {
-    let end = match.name.slice(value.length);
-    return value + end;
-  }
-
-  async fetchMatches(query) {
-    let response = await fetch(`${this.url}${encodeURIComponent(query)}`);
-    let data = await response.json();
-    return data;
-  }
-
-  reset() {
+  reset: function() {
     this.visible = false;
-    this.matches = [];
     this.bestMatchIndex = null;
     this.selectedIndex = null;
-    this.previousValue = null;
+    let listElements = [...document.querySelectorAll('li')];
+    listElements.forEach(li => li.remove());
+  },
 
-    this.draw();
-  }
+  init: function() {
+    this.input = document.querySelector('input');
+    this.url = '/countries?matching=';
+    this.listUI = null;
+    this.overlay = null;
+    this.visible = false;
+    this.bestMatchIndex = null;
+    this.selectedIndex = null;
+    this.matches = [];
 
-  handleKeydown(event) {
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        if (this.selectedIndex === null || this.selectedIndex === this.matches.length - 1) {
-          this.selectedIndex = 0;
-        } else {
-          this.selectedIndex += 1;
-        }
-        this.bestMatchIndex = null;
-        this.draw();
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        if (this.selectedIndex === null || this.selectedIndex === 0) {
-          this.selectedIndex = this.matches.length - 1;
-        } else {
-          this.selectedIndex -= 1;
-        }
-        this.bestMatchIndex = null;
-        this.draw();
-        break;
-      case 'Tab':
-        if (this.bestMatchIndex !== null && this.matches.length !== 0) {
-          this.input.value = this.matches[this.bestMatchIndex].name;
-          event.preventDefault();
-        }
-        this.reset();
-        break;
-      case 'Enter':
-        this.reset();
-        break;
-      case 'Escape':
-        this.input.value = this.previousValue;
-        this.reset();
-        break;
-    }
-  }
+    this.wrapInput();
+    this.createUI();
 
-  handleMousedown(event) {
-    let element = event.target;
-    this.input.value = element.textContent;
+    this.bindEvents();
     this.reset();
-  }
-}
+  },
+
+  autoCapitalize: function(value) {
+    let capital = value[0].toUpperCase() + value.slice(1);
+    console.log(capital);
+    return capital;
+  },
+};
 
 document.addEventListener('DOMContentLoaded', () => {
-  let input = document.querySelector('input');
-  let autocomplete = new Autocomplete(input, "/countries?matching=");
+  Autocomplete.init();
 });

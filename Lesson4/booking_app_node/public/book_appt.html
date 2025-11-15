@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Appointment Booking</title>
+  <script type="module" src="javascripts/bookAppt.js"></script>
+  <style>
+    .hidden {
+      display: none;
+    }
+
+    input, select {
+      display: inline-block;
+      position: absolute;
+      left: 100px;
+    }
+
+    input[type="submit"] {
+      position:static;
+    }
+
+    formset {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    #add-student {
+      margin-left: 15px;
+      margin-top: 30px;
+      background-color: lightgray;
+      padding: 10px;
+      width: 300px;
+      border-radius: 4px;
+      border-style: solid;
+    }
+
+    #book-schedule {
+      margin-left: 7px;
+    }
+
+    h2 {
+      margin-top: 5px;
+    }
+
+    h1 {
+      margin-left: 7px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Book Schedule</h1>
+  <form id="book-schedule">
+    <formset>
+      <label for="schedule-list">Schedule:</label>
+      <select name="id" id="schedule-list"></select>
+    </formset>
+
+    <formset>
+      <label for="existing-email">Email:</label>
+      <input type="email" name="student_email" id="booking-email"></select>
+    </formset>
+
+    <input type="submit" id="submit-booking">
+  </form>
+
+  <form id="add-student" class="hidden">
+    <h2>Register New Student</h2>
+    <formset>
+      <label for="new-student-email">Email:</label>
+      <input type="email" name="email" id="new-student-email">
+    </formset>  
+
+    <formset>
+      <label for="new-student-name">Name:</label>
+      <input type="text" name="name" id="new-student-name">
+    </formset>  
+
+    <formset>
+      <label for="new-student-booking">Booking:</label>
+      <input type="text" name="booking_sequence" id="new-student-booking"> 
+    </formset>
+
+    <input type="submit" id="submit-new-student">
+  </form>
+</body>
+</html>
