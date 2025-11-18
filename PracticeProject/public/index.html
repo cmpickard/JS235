@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="/javascripts/contactManager.js"></script>
+  <link rel="stylesheet" href="/stylesheets/styles.css"></style>
+</head>
+<body>
+  <header id="header">
+    <h1>Contact Manager</h1>
+  </header>
+  <main>
+    <div id="action-box" class="main-box">
+      <button class="add-contact" id="add-button">Add Contact</button>
+      <form id="search">
+        <input type="text" placeholder="Search" name = "search" id="search-text">
+      </form>
+    </div>
+    <ul id="contacts" class="main-box">
+    </ul>
+
+    <form id="add-contact" action="post" class="main-box hidden" novalidate>
+      <fieldset>
+        <label for="name">Name</label>
+        <input type="text"
+               id="name"
+               name="full_name"
+               pattern="[a-zA-Z '\-]+"
+               required>
+      </fieldset>
+
+      <fieldset>
+        <label for="email">Email</label>
+        <input type="email"
+               id="email"
+               name="email"
+               pattern=".+@.+"
+               required>
+      </fieldset>
+
+      <fieldset>
+        <label for="phone">Phone</label>
+        <input type="tel"
+               id="phone"
+               name="phone_number"
+               placeholder="444-444-4444"
+               minlength="11"
+               maxlength="11"
+               pattern="\d+"
+               required>
+      </fieldset>
+
+      <fieldset>
+        <legend>Select any applicable tags</legend>
+
+        <label for="work">Work</label>
+        <input type="checkbox" id="work" name="work" class="tag">
+        <label for="friend">Friend</label>
+        <input type="checkbox" id="friend" name="friend" class="tag">
+      </fieldset>
+
+      <input type="hidden" value="" name="id" id="hidden-id">
+
+      <input type="submit" value="Add" id="submit">
+      <button name="cancel" id="cancel">Cancel</button>
+      <div id="errors" class="hidden"></div>
+    </form>
+  </main>
+</body>
+</html>

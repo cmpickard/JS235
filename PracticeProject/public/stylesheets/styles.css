@@ -1,0 +1,107 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: 100;
+}
+
+#header {
+  text-align: center;
+  background-color: rgb(94, 54, 131);
+  width: 100%;
+  height: 125px;
+  color: white;
+}
+
+h1 {
+  padding: 40px 0 0 0;
+  margin: 0;
+}
+
+.main-box {
+  display: block;
+  margin: auto;
+  width: 1000px;
+  height: 180px;
+  background-color: rgb(250, 249, 244);
+  text-align: center;
+  border-radius: 8px;
+  border-width: 1px;
+  border-color: lightgrey;
+  border-style: solid;
+  margin-bottom: 20px;
+}
+
+#contacts {
+  width: 960px;
+  height:fit-content;
+}
+
+.add-contact, #search {
+  display: inline-block;
+  margin-top: 30px;
+}
+
+#search-text {
+  font-size: 15px;
+}
+
+#no-contacts {
+  margin-top: 10px;
+}
+
+.add-contact, #submit, #cancel {
+  padding: 10px 20px;
+  border-radius: 3px;
+  border-width: 1px;
+  border-color: grey;
+  border-style: solid;
+  font-size: 18px;
+  color: rgb(94, 54, 131);
+}
+
+.add-contact {
+  margin-right: 200px;
+}
+
+#no-contacts-add-button {
+  margin: auto;
+  margin-top: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+fieldset {
+  display: block;
+  border: none;
+}
+
+#add-contact {
+  background-color: rgb(233, 233, 233);
+  padding-top: 10px;
+  position: relative;
+  box-sizing: border-box;
+  top: -403px;
+  height: 400px;
+  padding-top: 100px;
+  width: 1002px;
+}
+
+li {
+  list-style: none;
+}
+
+.contact {
+  display: inline-block;
+}
+
+a {
+  margin-right: 10px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+#errors {
+  color: red;
+}
